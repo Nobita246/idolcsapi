@@ -41,12 +41,15 @@ class UserController extends Controller
             $user_data['name'] = $request->name;
             $user_data['email'] = $request->email;
             $user_data['password'] = bcrypt($request->password);
+            $user_data['remember_token'] = rand(100000, 999999);
+            $user_data['is_verified'] = 0;
             User::insert($user_data);
             unset($user_data['password']);
+            unset($user_data['remember_token']);
+            unset($user_data['is_verified']);
+            send_email('EMAIL_VERIFICATION', $request->email);
 
         }
-
-
         return $this->sendResponse($user_data, "User Registered Successfully !", 200);
     }
 
@@ -151,4 +154,49 @@ class UserController extends Controller
             }
         }
     }
+
+    public function otp_verification(Request $request)
+    {
+        $validation_rule = [];
+        $type = $request->has('type') ? $request->type : null;
+        if ($type == "forgot_password") {
+            $validation_rule['email_otp'] = "required|exists:users,forgot_otp";
+        } else {
+            $validation_rule['email_otp'] = "required|exists:users,remember_token";
+        }
+        $validation_rule['email'] = "required|string|email|exists:users,email";
+        $validator = Validator::make($request->all(), $validation_rule);
+        if ($validator->fails()) {
+            return $this->sendError('Validation Failed.', $validator->errors(), 400);
+        }
+
+        $user_obj = User::where('email', $request->email)->first();
+        if ($type == "forgot_password") {
+            $user_obj->forgot_otp = null;
+        } else {
+            $user_obj->remember_token = null;
+        }
+        $user_obj->is_verified = 1;
+        $user_obj->save();
+        return $this->sendResponse([], "Verified Successfully !");
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => "required|string|email|exists:users,email"
+        ]);
+        if ($validator->fails()) {
+            return $this->sendError('Validation Failed.', $validator->errors(), 400);
+        }
+
+
+        $user = User::where('email', $request->email)->first();
+        $user->forgot_otp = rand(111111, 999999);
+        $user->save();
+        send_email('EMAIL_FORGOT_PASSWORD', $user->email, ['user' => 0]);
+
+        return $this->sendResponse([], "OTP sent Successfully !");
+    }
+
 }

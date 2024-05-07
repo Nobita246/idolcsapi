@@ -23,3 +23,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/register', [UserController::class, 'register']);
 Route::get('auth/{driver}/callback', [UserController::class, 'Authcallback']);
+Route::post('/otp/verification', [UserController::class, 'otp_verification']);
+Route::post('/forgot/password', [UserController::class, 'forgotPassword']);

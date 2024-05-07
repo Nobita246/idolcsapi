@@ -1,0 +1,5 @@
+INSERT INTO `email_templates` (`id`, `template_key`, `subject`, `content`, `email_variables`, `status`, `is_deleted`, `created_at`, `updated_at`) VALUES (NULL, 'EMAIL_VERIFICATION', 'IDOLCS Email Verification', '<p>Please use this OTP <b>{user_email_otp}</b> for verification.</p>', '[{\"label\":\"{user_email_otp}\",\"name\":\"remember_token\",\"tooltip\":\"This is the user email otp\",\"references\":\"users\"}]', '0', '0', NULL, NULL);
+
+
+
+INSERT INTO `email_templates` (`id`, `template_key`, `subject`, `content`, `email_variables`, `status`, `is_deleted`, `created_at`, `updated_at`) VALUES (NULL, 'EMAIL_FORGOT_PASSWORD', 'IDOLCS Forgot Password', '<p>Dear <b>{name}</b>,<br> please use this OTP to forgot your password : <b>{forgot_otp}</b>.</p> <p>Thank you</p>', '[{\"label\":\"{name}\",\"name\":\"name\",\"tooltip\":\"This is a name of user\",\"references\":\"users\"},{\"label\":\"{forgot_otp}\",\"name\":\"forgot_otp\",\"tooltip\":\"This is a forgot email otp of chef\",\"references\":\"users\"}]', '0', '0', NULL, NULL);

@@ -25,3 +25,9 @@ Route::post('/register', [UserController::class, 'register']);
 Route::get('auth/{driver}/callback', [UserController::class, 'Authcallback']);
 Route::post('/otp/verification', [UserController::class, 'otp_verification']);
 Route::post('/forgot/password', [UserController::class, 'forgotPassword']);
+Route::post('/forgot/change/password', [UserController::class, 'forgotChangePassword']);
+
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('change/password', [UserController::class, 'changePassword']);
+});

@@ -199,4 +199,47 @@ class UserController extends Controller
         return $this->sendResponse([], "OTP sent Successfully !");
     }
 
+    public function changePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'old_password' => 'required',
+            'new_password' => 'required|different:old_password|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/',
+            'confirm_password' => 'required|same:new_password'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error', $validator->errors(), 200);
+        }
+
+        $user = $request->user('sanctum');
+        if (Hash::check($request->old_password, $user->password)) {
+            $user->password = bcrypt($request->new_password);
+            $user->save();
+            // send_email('CHANGE_PASSWORD_CUSTOMER', $user->email);
+        } else {
+            return $this->sendError('Please Enter Valid Old Password', [], 401);
+        }
+
+        return $this->sendResponse([], "Password Changed Successfully !");
+    }
+
+    public function forgotChangePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => "required|string|email|exists:users,email",
+            'new_password' => 'required|different:old_password|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/',
+            'confirm_password' => 'required|same:new_password'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error', $validator->errors(), 200);
+        }
+
+        $user = User::where('email', $request->email)->first();
+        $user->password = bcrypt($request->new_password);
+        $user->save();
+
+        return $this->sendResponse([], "Password Changed Successfully !");
+    }
+
 }
